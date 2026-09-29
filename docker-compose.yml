@@ -11,6 +11,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./api/db/init:/docker-entrypoint-initdb.d:ro
-
+  
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: devops-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 volumes:
   postgres_data:

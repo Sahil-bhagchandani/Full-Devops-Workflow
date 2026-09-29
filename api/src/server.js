@@ -3,12 +3,29 @@ require("dotenv").config();
 const pool = require("./db");
 const express = require("express");
 const cors = require("cors");
+const amqp = require("amqplib");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+let rabbitChannel;
+
+async function connectRabbitMQ(){
+  const connection = await amqp.connect(
+    process.env.RABBITMQ_URL || "amqp://localhost:5672"  
+  );
+
+rabbitChannel = await connection.createChannel();
+
+await rabbitChannel.assertQueue("job_queue",{
+  durable: true
+});
+console.log("Connected to RabbitMQ");
+}
+
 
 app.get("/health", async (req, res) => {
   try{
@@ -46,7 +63,20 @@ app.post("/jobs", async (req, res) => {
       [type, payload || {}]
     );
 
-    res.status(201).json(result.rows[0]);
+    const job = result.rows[0];
+
+    rabbitChannel.sendToQueue(
+      "job_queue",
+      Buffer.from(JSON.stringify({
+        jobId: job.id
+      })),
+      {
+        persistent: true
+      }
+    );
+
+    res.status(201).json(job);
+
   } catch (error) {
     console.error("Failed to create job:", error.message);
 
@@ -96,6 +126,17 @@ app.get("/jobs/:id", async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`API running on port ${PORT}`);
-});
+async function startServer() {
+  try {
+    await connectRabbitMQ();
+
+    app.listen(PORT, () => {
+      console.log(`API running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
+}
+
+startServer();
