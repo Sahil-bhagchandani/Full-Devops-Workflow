@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const amqp = require("amqplib");
 const { Pool } = require("pg");
-
+const { redisClient, connectRedis } = require("./redis");
 const RABBITMQ_URL =
   process.env.RABBITMQ_URL || "amqp://localhost:5672";
 
@@ -21,7 +21,7 @@ async function startWorker() {
   await channel.assertQueue("job_queue", {
     durable: true
   });
-
+  await connectRedis();
   channel.prefetch(1);
 
   console.log("Worker connected to RabbitMQ");
@@ -44,6 +44,7 @@ async function startWorker() {
          WHERE id = $1`,
         [jobId]
       );
+      
 
       // Simulate some work
       await new Promise(resolve => setTimeout(resolve, 3000));
@@ -55,7 +56,7 @@ async function startWorker() {
          WHERE id = $1`,
         [jobId]
       );
-
+      await redisClient.del("jobs:all");
       console.log(`Job ${jobId} completed`);
 
       channel.ack(message);
