@@ -4,6 +4,7 @@ const pool = require("./db");
 const express = require("express");
 const cors = require("cors");
 const amqp = require("amqplib");
+const { redisClient, connectRedis } = require("./redis");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,6 +75,7 @@ app.post("/jobs", async (req, res) => {
         persistent: true
       }
     );
+    await redisClient.del("jobs:all");
 
     res.status(201).json(job);
 
@@ -88,11 +90,32 @@ app.post("/jobs", async (req, res) => {
 
 app.get("/jobs", async (req, res) => {
   try {
+    const cacheKey = "jobs:all";
+
+    const cachedJobs = await redisClient.get(cacheKey);
+
+    if (cachedJobs) {
+      console.log("Redis cache hit");
+
+      return res.json(JSON.parse(cachedJobs));
+    }
+
+    console.log("Redis cache miss");
+
     const result = await pool.query(
       "SELECT * FROM jobs ORDER BY created_at DESC"
     );
 
+    await redisClient.set(
+      cacheKey,
+      JSON.stringify(result.rows),
+      {
+        EX: 30
+      }
+    );
+
     res.json(result.rows);
+
   } catch (error) {
     console.error("Failed to fetch jobs:", error.message);
 
@@ -129,6 +152,7 @@ app.get("/jobs/:id", async (req, res) => {
 async function startServer() {
   try {
     await connectRabbitMQ();
+    await connectRedis();
 
     app.listen(PORT, () => {
       console.log(`API running on port ${PORT}`);
@@ -138,5 +162,4 @@ async function startServer() {
     process.exit(1);
   }
 }
-
 startServer();
