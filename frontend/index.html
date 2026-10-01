@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Job Processing System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <h1>Job Processing System</h1>
+            <p>DevOps job queue dashboard</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Create Job -->
+        <section class="card">
+
+            <div class="section-header">
+                <div>
+                    <h2>Create Job</h2>
+                    <p>Submit a job to the processing queue.</p>
+                </div>
+            </div>
+
+            <form id="job-form">
+
+                <div class="form-group">
+                    <label for="job-type">Job Type</label>
+
+                    <input
+                        type="text"
+                        id="job-type"
+                        placeholder="e.g. report"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="customer-id">Customer ID</label>
+
+                    <input
+                        type="number"
+                        id="customer-id"
+                        placeholder="e.g. 123"
+                        required
+                    >
+                </div>
+
+                <button type="submit" id="create-job-button">
+                    Create Job
+                </button>
+
+            </form>
+
+            <div id="form-message" class="message hidden"></div>
+
+        </section>
+
+
+        <!-- Jobs -->
+        <section class="card">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Jobs</h2>
+                    <p>Jobs currently stored in the system.</p>
+                </div>
+
+                <button
+                    id="refresh-button"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+            <div id="loading" class="loading hidden">
+                Loading jobs...
+            </div>
+
+            <div id="jobs-container"></div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Job Processing System</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
