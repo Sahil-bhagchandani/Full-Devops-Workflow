@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: jobs-lab
+  name: my-dep
+  labels:
+    app: my-dep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-dep
+  template:
+    metadata:
+      labels:
+        app: my-dep
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.27
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef: 
+            name: my-config
+        env: 
+        - name: db_password
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: db_password
+
