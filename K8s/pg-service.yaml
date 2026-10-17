@@ -5,7 +5,7 @@ metadata:
   namespace: jobs-lab
 spec:
   selector:
-    app: postgres-0
+    app: postgres
   ports:
   - port: 5432
     targetPort: postgres

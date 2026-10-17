@@ -1,39 +1,41 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres-0
+  name: postgres
   namespace: jobs-lab
 spec:
   serviceName: pg-service
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: postgres-0
+      app: postgres
   template:
     metadata:
       labels:
-        app: postgres-0
+        app: postgres
     spec:
       containers:
-      - name: postgres-0
+      - name: postgres
         image: postgres:17
         readinessProbe:
           exec:
             command:
-            - pg_isready -U postgres
+            - pg_isready
+            - -U
+            - postgres
           initialDelaySeconds: 10
           periodSeconds: 10
         volumeMounts:  
-        - name: pg-data
+        - name: postgres-pvc
           mountPath: /var/lib/postgresql/data
         env:
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
-        - name: db_password
+        - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgres-secret
-              key: db_password
+              key: POSTGRES_PASSWORD
         ports:
         - containerPort: 5432
           name: postgres
