@@ -4,7 +4,7 @@ metadata:
   name: postgres
   namespace: jobs-lab
 spec:
-  serviceName: pg-service
+  serviceName: postgres
   replicas: 1
   selector:
     matchLabels:
@@ -14,6 +14,10 @@ spec:
       labels:
         app: postgres
     spec:
+      volumes:
+      - name:  pg-init-config
+        configMap:
+          name: pg-init
       containers:
       - name: postgres
         image: postgres:17
@@ -28,7 +32,11 @@ spec:
         volumeMounts:  
         - name: postgres-pvc
           mountPath: /var/lib/postgresql/data
+        - name: pg-init-config
+          mountPath: /docker-entrypoint-initdb.d
         env:
+        - name: POSTGRES_DB
+          value: devops_app
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
         - name: POSTGRES_PASSWORD
