@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: devops-redis
+    app: devops-rabbitmq
   ports:
   - name: amqp
     protocol: TCP

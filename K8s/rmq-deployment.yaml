@@ -28,7 +28,7 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "200m"   
-        readinesProbe:
+        readinessProbe:
           exec:
             command: 
               - rabbitmq-diagnostics
