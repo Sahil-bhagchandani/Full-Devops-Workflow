@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  namespace: jobs-lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devops-api
+  template:
+    metadata:
+      labels: 
+        app: devops-api
+    spec:
+      containers:
+      - name: devops-api
+        image: devworkflowimages.azurecr.io/devops/api:v1.0.0
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: app-config
+        env:
+        - name: DB_PASSWORD
+          valuefrom:
+            secretMapKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        resources:
+          requests:
+            memory:
+            cpu:
+          limits:
+            memory:
+            cpu:
+        readinessProbe:
+          httpGet:
+            port: 3000
+            path: /health
+        livenessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 
+          periodSeconds: 
