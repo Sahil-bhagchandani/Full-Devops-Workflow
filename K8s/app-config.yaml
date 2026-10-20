@@ -4,9 +4,9 @@ metadata:
   name: app-config
   namespace: jobs-lab
 data:
-  DB_HOST: postgres
-  DB_PORT: 5432
-  DB_NAME: devops_app
-  DB_USER: postgres
-  RABBITMQ_URL: amqp://rabbitmq:5672
-  REDIS_URL: redis://redis:6379  
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "devops_app"
+  DB_USER: "postgres"
+  RABBITMQ_URL: "amqp://rabbitmq:5672"
+  REDIS_URL: "redis://redis:6379"  
