@@ -1,0 +1,17 @@
+api:
+  replicaCount: 2
+  image:
+    repository: devworkflowimages.azurecr.io/devops/api
+    tag: v1.0.0
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: devworkflowimages.azurecr.io/devops/frontend
+    tag: v1.0.0
+
+worker:
+  replicaCount: 2
+  image:
+    repository: devworkflowimages.azurecr.io/devops/worker
+    tag: v1.0.0

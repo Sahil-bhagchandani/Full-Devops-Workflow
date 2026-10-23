@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      volumes:
+      - name:  pg-init-config
+        configMap:
+          name: pg-init
+      containers:
+      - name: postgres
+        image: postgres:17
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:  
+        - name: postgres-pvc
+          mountPath: /var/lib/postgresql/data
+        - name: pg-init-config
+          mountPath: /docker-entrypoint-initdb.d
+        env:
+        - name: POSTGRES_DB
+          value: devops_app
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 5432
+          name: postgres
+  volumeClaimTemplates: 
+  - metadata:
+      name: postgres-pvc
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: "1Gi"  
+
